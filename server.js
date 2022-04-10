@@ -11,6 +11,11 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 // parse incoming JSON data
 app.use(express.json());
+app.use(express.static("public"));
+
+app.get("/notes", (req, res) => {
+  res.sendFile(path.join(__dirname, "./public/notes.html"));
+});
 
 app.get("/api/notes", (req, res) => {
   res.json(savedNotes);
@@ -21,7 +26,7 @@ function createNewNote(body, notesArray) {
   notesArray.push(note);
   fs.writeFileSync(
     path.join(__dirname, "./db/db.json"),
-    JSON.stringify({ notes: notesArray }, null, 2)
+    JSON.stringify(notesArray, null, 2)
   );
 
   return note;
@@ -33,6 +38,10 @@ app.post("/api/notes", (req, res) => {
   // add note to json file and notes array
   const note = createNewNote(req.body, savedNotes);
   res.json(note);
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "./public/index.html"));
 });
 
 app.listen(PORT, () => {
